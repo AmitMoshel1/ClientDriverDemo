@@ -19,7 +19,7 @@ int main(int s, const char* argv[]) {
         &InputBuffer,                          // InputBuffer
         sizeof(InputBuffer),                   // Size of InputBuffer
         message,                               // OutputBuffer
-        256,                                   // size of OutputBuffer
+        512,                                   // size of OutputBuffer
         &BytesReturned,                        // Bytes Returned
         nullptr);
  
@@ -35,7 +35,7 @@ int main(int s, const char* argv[]) {
         &InputBuffer,                      // InputBuffer
         sizeof(InputBuffer),               // Size of InputBuffer
         message,                           // OutputBuffer
-        256,                               // size of OutputBuffer
+        512,                               // size of OutputBuffer
         &BytesReturned,                    // Bytes Returned to OutputBuffer
         nullptr);
     
