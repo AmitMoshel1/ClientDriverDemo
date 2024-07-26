@@ -17,7 +17,7 @@ int main(int s, const char* argv[]) {
     int result = DeviceIoControl(hDevice,      // Handle to Device Object
         IOCTL_BUFFERED_METHOD,                 // IOCTL
         &InputBuffer,                          // InputBuffer
-        1,                   // Size of InputBuffer
+        sizeof(InputBuffer),                   // Size of InputBuffer
         message,                               // OutputBuffer
         512,                                   // size of OutputBuffer
         &BytesReturned,                        // Bytes Returned
@@ -29,7 +29,6 @@ int main(int s, const char* argv[]) {
         printf("\n IOCTL_BUFFERED_METHOD Problem with executing IOCTL... (%u)\n", GetLastError());
 
     getchar();
-
     result = DeviceIoControl(hDevice,      // Handle to Device Object
         IOCTL_DIRECT_METHOD,               // IOCTL
         &InputBuffer,                      // InputBuffer
@@ -43,24 +42,27 @@ int main(int s, const char* argv[]) {
         printf("\n IOCTL_DIRECT_METHOD: Data Received from driver: %s\n", message);
     else
         printf("\n IOCTL_DIRECT_METHOD Problem with executing IOCTL... (%u)\n", GetLastError());
-
     getchar();
 
-    result = DeviceIoControl(hDevice,       // Handle to Device Object
-        IOCTL_METHOD_NEITHER,               // IOCTL
-        nullptr,                            // InputBuffer
-        0,                                  // Size of InputBuffer
-        nullptr,                            // OutputBuffer
-        0,                                  // size of OutputBuffer
-        &BytesReturned,                     // Bytes Returned to OutputBuffer
+    PVOID Buffer = VirtualAlloc(nullptr, 0x1000, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    ULONG Size = 0x1000;
+    RtlCopyMemory(Buffer, &Size, sizeof(ULONG));
+    result = DeviceIoControl(hDevice,      // Handle to Device Object
+        IOCTL_METHOD_NEITHER,              // IOCTL
+        Buffer,                            // InputBuffer
+        sizeof(Buffer),                    // Size of InputBuffer
+        Buffer,                            // OutputBuffer
+        sizeof(Buffer),                    // size of OutputBuffer
+        &BytesReturned,                    // Bytes Returned to OutputBuffer
         nullptr);
 
     if (result)
-        printf("\nIOCTL_METHOD_NEITHER was executed successfully!\n");
+        printf("\n IOCTL_METHOD_NEITHER: Data Received from driver: %s\n", (char*)Buffer);
+    else
+        printf("\n IOCTL_METHOD_NEITHER Problem with executing IOCTL... (%u)\n", GetLastError());
    
     getchar();
-
     CloseHandle(hDevice);
-    
+    VirtualFree(Buffer, sizeof(Buffer), MEM_RELEASE);
     return 0;
 }
